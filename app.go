@@ -51,7 +51,9 @@ func (a *App) Provision(ctx caddy.Context) error {
 }
 
 func (a *App) addCmd(c Cmd) {
-	runner := runnerFunc(c.run)
+	runner := runnerFunc(func() error {
+		return c.run(c.Args)
+	})
 	for at := range c.at {
 		a.commands[at] = append(a.commands[at], runner)
 	}

@@ -17,12 +17,12 @@ type runnerFunc func() error
 
 func (r runnerFunc) Run() error { return r() }
 
-func (c *Cmd) run() error {
-	cmdInfo := zap.Any("command", append([]string{c.Command}, c.Args...))
+func (c *Cmd) run(params []string) error {
+	cmdInfo := zap.Any("command", append([]string{c.Command}, params...))
 	log := c.log.With(cmdInfo)
 	startTime := time.Now()
 
-	cmd := exec.Command(c.Command, c.Args...)
+	cmd := exec.Command(c.Command, params...)
 
 	done := make(chan struct{}, 1)
 
@@ -36,7 +36,7 @@ func (c *Cmd) run() error {
 			cancel()
 		}()
 
-		cmd = exec.CommandContext(ctx, c.Command, c.Args...)
+		cmd = exec.CommandContext(ctx, c.Command, params...)
 	}
 
 	// configure command

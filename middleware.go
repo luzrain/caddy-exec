@@ -45,7 +45,15 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 		Error  string `json:"error,omitempty"`
 	}
 
-	err := m.run()
+	args := make([]string, len(m.Args))
+	copy(args, m.Args)
+	repl := r.Context().Value(caddy.ReplacerCtxKey).(*caddy.Replacer)
+
+	for index, argument := range args {
+		args[index] = repl.ReplaceAll(argument, "")
+	}
+
+	err := m.run(args)
 
 	if err == nil {
 		resp.Status = "success"
